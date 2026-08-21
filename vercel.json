@@ -1,12 +1,12 @@
 {
   "version": 2,
   "functions": {
-    "backend/index.js": {
+    "api/index.js": {
       "includeFiles": "backend/prisma/**"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/backend/index.js" },
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/(.*)", "destination": "/$1" }
   ]
 }
