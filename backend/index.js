@@ -1,8 +1,14 @@
 const path = require('path')
 const express = require('express')
 const cors = require('cors')
-const { PrismaClient } = require('@prisma/client')
-const { PrismaPg } = require('@prisma/adapter-pg')
+let PrismaClient;
+let PrismaPg;
+try {
+  PrismaClient = require('@prisma/client').PrismaClient
+  PrismaPg = require('@prisma/adapter-pg').PrismaPg
+} catch(e) {
+  console.error("Prisma require failed", e)
+}
 const { Pool } = require('pg')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
@@ -29,9 +35,16 @@ if (!process.env.VERCEL) {
   // Mock io for serverless environment
   io = { emit: () => {}, to: () => ({ emit: () => {} }) };
 }
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+let pool;
+let adapter;
+let prisma;
+try {
+  pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  adapter = new PrismaPg(pool)
+  prisma = new PrismaClient({ adapter })
+} catch (error) {
+  console.error("Prisma init failed:", error)
+}
 
 app.use(cors())
 app.use(express.json())
