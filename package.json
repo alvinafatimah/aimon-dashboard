@@ -1,0 +1,12 @@
+{
+  "name": "aimon-dashboard",
+  "version": "1.0.0",
+  "description": "AIMON Dashboard",
+  "scripts": {
+    "start": "cd backend && node index.js",
+    "install": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
