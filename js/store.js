@@ -98,8 +98,23 @@ const AppStore = {
     return { totalProjects: pjs.length, avgProgress: pjs.length ? Math.round(totalReal / pjs.length * 10) / 10 : 0, totalRealization: totalReal, totalActivities: total, doneActivities: done, progressActivities: prog, openActivities: total - done - prog, delayedActivities: delayed, pendingApprovals: this.approvals.filter(a => a.status === 'pending').length };
   },
 
-  getStatusClass(s) { return { 'draft': 'delayed', 'open': 'open', 'on-progress': 'on-progress', 'done': 'done', 'delayed': 'delayed', 'pending': 'pending', 'approved': 'approved', 'rejected': 'rejected' }[s] || 'open'; },
-  getStatusLabel(s) { return { 'draft': 'Draft', 'open': 'Open', 'on-progress': 'On Progress', 'done': 'Done', 'delayed': 'Delayed', 'pending': 'Pending', 'approved': 'Disetujui', 'rejected': 'Ditolak' }[s] || s; },
+  getStatusClass(s) { 
+    if (!s) return 'open';
+    const l = s.toLowerCase();
+    if (['completed', 'done', 'approved'].includes(l)) return 'done';
+    if (['progress', 'in progress', 'on-progress', 'in_progress'].includes(l)) return 'on-progress';
+    if (['late', 'delayed', 'rejected'].includes(l)) return 'delayed';
+    return 'open';
+  },
+  getStatusLabel(s) { 
+    if (!s) return 'Open';
+    const l = s.toLowerCase();
+    if (['completed', 'done', 'approved'].includes(l)) return 'Done';
+    if (['progress', 'in progress', 'on-progress', 'in_progress'].includes(l)) return 'Progress';
+    if (['late', 'delayed', 'rejected'].includes(l)) return 'Terlambat';
+    if (['open', 'draft', 'pending'].includes(l)) return 'Open';
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  },
   getProgressColor(p) { if (p >= 80) return 'green'; if (p >= 50) return 'blue'; if (p >= 25) return 'yellow'; return 'red'; },
   getFilteredProjects() { return this.projects.filter(p => { const s = this.filters.seksi === 'Semua' || p.seksi === this.filters.seksi; const k = this.filters.kategori === 'Semua' || p.kategori === this.filters.kategori; return s && k; }); },
   getPendingCount() { return this.approvals.filter(a => a.status === 'pending').length; },

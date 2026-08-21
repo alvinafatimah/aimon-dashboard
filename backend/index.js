@@ -1,17 +1,10 @@
 const path = require('path')
 const express = require('express')
 const cors = require('cors')
-let PrismaClient;
-let PrismaPg;
-try {
-  PrismaClient = require('@prisma/client').PrismaClient
-  PrismaPg = require('@prisma/adapter-pg').PrismaPg
-} catch(e) {
-  console.error("Prisma require failed", e)
-}
+const { PrismaClient } = require('@prisma/client')
+const { PrismaPg } = require('@prisma/adapter-pg')
 const { Pool } = require('pg')
 const { createServer } = require('http')
-const { Server } = require('socket.io')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
@@ -26,25 +19,9 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage })
 const server = createServer(app)
-let io;
-if (!process.env.VERCEL) {
-  io = new Server(server, {
-    cors: { origin: '*' }
-  })
-} else {
-  // Mock io for serverless environment
-  io = { emit: () => {}, to: () => ({ emit: () => {} }) };
-}
-let pool;
-let adapter;
-let prisma;
-try {
-  pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  adapter = new PrismaPg(pool)
-  prisma = new PrismaClient({ adapter })
-} catch (error) {
-  console.error("Prisma init failed:", error)
-}
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 app.use(cors())
 app.use(express.json())
@@ -173,7 +150,7 @@ app.get('/api/projects/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/projects', authenticateToken, async (req, res) => {
   try {
-    if (['Staff', 'Guest', 'Researcher'].includes(req.user.role)) {
+    if (['Staff', 'Guest'].includes(req.user.role)) {
        return res.status(403).json({ message: 'Forbidden' })
     }
     
@@ -186,7 +163,7 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
           code: ph.code, name: ph.name, bobot: ph.bobot, status: ph.status, order_index: ph.order_index,
           activities: {
             create: ph.activities ? ph.activities.map(a => ({
-               code: a.code, name: a.name, target: a.target, nilai_aktual: a.nilai_aktual, status: a.status, start_date: new Date(a.start_date), end_date: new Date(a.end_date), order_index: a.order_index, pic_id: a.pic_id || undefined
+               code: a.code, name: a.name, target: a.target, nilai_aktual: a.nilai_aktual, status: a.status, start_date: new Date(a.start_date), end_date: new Date(a.end_date), pic_id: a.pic_id || undefined
             })) : []
           }
         }))
@@ -209,6 +186,9 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
 
 app.put('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
+    if (['Staff', 'Guest'].includes(req.user.role)) {
+       return res.status(403).json({ message: 'Forbidden' })
+    }
     const { phases, ...rest } = req.body
     
     await prisma.phase.deleteMany({ where: { project_id: req.params.id } })
@@ -380,7 +360,6 @@ app.post('/api/approvals/:id/review', authenticateToken, async (req, res) => {
       })
     }
 
-    io.emit('approval_update', { type: 'review', approval: updated })
     res.json(updated)
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -388,41 +367,33 @@ app.post('/api/approvals/:id/review', authenticateToken, async (req, res) => {
 })
 
 // ----------------------
-// WEBSOCKETS
+// CHAT POST ROUTE
 // ----------------------
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id)
-
-  socket.on('send_message', async (data) => {
-    try {
-      const msg = await prisma.chatMessage.create({
-        data: {
-          sender_id: data.from,
-          receiver_id: data.to,
-          text: data.text,
-          is_read: false
-        }
-      })
-      // Map it back to the frontend expected format
-      const clientMsg = {
-        id: msg.id,
-        from: msg.sender_id,
-        to: msg.receiver_id,
-        text: msg.text,
-        time: msg.sent_at,
-        read: msg.is_read,
-        clientId: data.clientId
+app.post('/api/chat', authenticateToken, async (req, res) => {
+  try {
+    const data = req.body;
+    const msg = await prisma.chatMessage.create({
+      data: {
+        sender_id: req.user.id,
+        receiver_id: data.to,
+        text: data.text,
+        is_read: false
       }
-      io.emit('receive_message', clientMsg)
-    } catch (e) {
-      console.error('Chat error:', e)
-    }
-  })
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id)
-  })
-})
+    });
+    const clientMsg = {
+      id: msg.id,
+      from: msg.sender_id,
+      to: msg.receiver_id,
+      text: msg.text,
+      time: msg.sent_at,
+      read: msg.is_read,
+      clientId: data.clientId
+    };
+    res.json(clientMsg);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // ----------------------
 // START SERVER

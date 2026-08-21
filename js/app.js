@@ -42,7 +42,7 @@
 
   // Helpers
   function statusBadge(s) { return `<span class="status-badge ${AppStore.getStatusClass(s)}"><span class="status-dot"></span>${AppStore.getStatusLabel(s)}</span>`; }
-  function progressBar(p, sz = '') { const col = p >= 50 ? 'blue' : 'orange'; return `<div class="progress-bar-container ${sz}"><div class="progress-bar"><div class="progress-bar-fill ${col}" style="width:${p}%"></div></div><span class="progress-value font-mono">${p.toFixed(1)}%</span></div>`; }
+  function progressBar(p, sz = '') { const col = p >= 40 ? 'blue' : 'orange'; return `<div class="progress-bar-container ${sz}"><div class="progress-bar"><div class="progress-bar-fill ${col}" style="width:${p}%"></div></div><span class="progress-value font-mono ${col}">${p.toFixed(1)}%</span></div>`; }
   // === UI Helpers ===
   window._renderSkeleton = function() {
     return `<div class="skeleton-container animate-fade-in-up">
@@ -427,6 +427,7 @@
     updateBreadcrumb([{ text: 'Dashboard', link: '#/dashboard' }, { text: 'Daftar Proyek' }]);
     const main = document.getElementById('mainContent');
     const canCreate = ['Researcher', 'Kepala Unit', 'Admin', 'Kepala Seksi'].includes(AppStore.currentUser.role);
+    const canEdit = ['Researcher', 'Kepala Unit', 'Admin', 'Kepala Seksi'].includes(AppStore.currentUser.role);
     let pjs = AppStore.getFilteredProjects();
     const q = document.getElementById('globalSearch')?.value?.toLowerCase() || '';
     if (q) pjs = pjs.filter(p => p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q));
@@ -440,13 +441,17 @@
         const r = AppStore.calculateRealization(p); 
         const rag = AppStore.calculateRAG(p);
         const ragColor = rag === 'green' ? 'var(--color-status-done)' : (rag === 'yellow' ? 'var(--color-status-progress)' : 'var(--color-status-late)');
-        return `<tr><td class="col-code"><strong>${p.code}</strong></td><td><div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background-color:${ragColor}"></span><a class="link-project" data-pid="${p.id}" style="cursor:pointer;color:var(--color-text-link);font-weight:500">${p.name}</a></div></td><td><span class="badge-pill ${p.kategori === 'OMTI' ? 'purple' : 'blue'}">${p.kategori}</span></td><td style="font-size:var(--fs-xs)">${p.seksi}</td><td style="font-size:var(--fs-xs)">${p.picName}</td><td style="font-size:var(--fs-xs);white-space:nowrap">${AppStore.formatDate(p.startDate)} – ${AppStore.formatDate(p.endDate)}</td><td style="min-width:110px">${progressBar(r)}</td><td>${statusBadge(p.status)}</td></tr>`; 
+        return `<tr><td class="col-code"><strong>${p.code}</strong></td><td><div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background-color:${ragColor}"></span><a class="link-project" data-pid="${p.id}" style="cursor:pointer;color:var(--color-text-link);font-weight:500">${p.name}</a></div></td><td><span class="badge-pill ${p.kategori === 'OMTI' ? 'purple' : 'blue'}">${p.kategori}</span></td><td style="font-size:var(--fs-xs)">${p.seksi}</td><td style="font-size:var(--fs-xs)">${p.picName}</td><td style="font-size:var(--fs-xs);white-space:nowrap">${AppStore.formatDate(p.startDate)} – ${AppStore.formatDate(p.endDate)}</td><td style="min-width:110px">${progressBar(r)}</td><td><div style="display:flex;gap:8px;align-items:center">${statusBadge(p.status)}${canEdit ? `<button class="btn btn-outline btn-xs edit-project-btn" data-pid="${p.id}">✏️ Edit</button>` : ''}</div></td></tr>`; 
       }).join('')}
       ${pjs.length === 0 ? '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--color-text-tertiary)">Tidak ada proyek ditemukan</td></tr>' : ''}
       </tbody></table></div></div>
     </div>`;
     document.querySelectorAll('.link-project').forEach(l => l.addEventListener('click', () => showProjectDetailModal(l.dataset.pid)));
     document.getElementById('btnCreateProject2')?.addEventListener('click', () => showCreateProjectModal());
+    document.querySelectorAll('.edit-project-btn').forEach(btn => btn.addEventListener('click', () => {
+      const p = AppStore.projects.find(x => x.id === btn.dataset.pid);
+      if (p) showCreateProjectModal(p);
+    }));
   }
 
   // ============================================
@@ -736,7 +741,7 @@
           <button class="add-btn" id="addPhaseBtn" style="margin-top:8px;font-size:var(--fs-xs)">＋ Tambah Tahapan</button>
           <div class="bobot-total ${totalBobot === 100 ? 'valid' : 'invalid'}"><span>Total Bobot:</span><span class="font-mono">${totalBobot}% ${totalBobot === 100 ? '✅' : '⚠️ harus 100%'}</span></div>
         </div>
-        <div class="modal-footer"><button class="btn btn-outline btn-sm" onclick="document.getElementById('modalContainer')?.remove()">Batal</button><div><button class="btn btn-outline btn-sm" id="saveDraftBtn" style="margin-right:8px">💾 Simpan Draft</button><button class="btn btn-accent btn-sm" id="submitProjectBtn">📤 Submit for Approval</button></div></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('modalContainer')?.remove()">Batal</button><div><button type="button" class="btn btn-outline btn-sm" id="saveDraftBtn" style="margin-right:8px">💾 Simpan Draft</button><button class="btn btn-accent btn-sm" id="submitProjectBtn">📤 Submit for Approval</button></div></div>
       </div>
     </div>`;
     document.body.appendChild(c);
@@ -906,7 +911,7 @@
           <div class="form-group"><label class="form-label">Catatan</label><textarea class="form-textarea" id="updNote" placeholder="Jelaskan progress..."></textarea></div>
           <div class="form-group"><label class="form-label">Lampiran</label><div class="file-upload-area" id="fileUploadArea">📎 Pilih dokumen dari komputer...</div><input type="file" id="docFileInput" multiple style="display:none" /><div class="file-list" id="fileList"></div></div>
         </div>
-        <div class="modal-footer"><button class="btn btn-outline btn-sm" onclick="document.getElementById('modalContainer')?.remove()">Batal</button><button class="btn btn-accent btn-sm" id="submitUpdateBtn">📤 Submit</button></div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('modalContainer')?.remove()">Batal</button><button class="btn btn-accent btn-sm" id="submitUpdateBtn">📤 Submit</button></div>
       </div>
     </div>`;
     document.body.appendChild(c);
@@ -1161,23 +1166,39 @@
     
     document.getElementById('chatMsgs').scrollTop = document.getElementById('chatMsgs').scrollHeight;
     document.getElementById('chatBack').addEventListener('click', () => renderChatContacts());
-    const send = () => { 
+    const send = async () => { 
       const inp = document.getElementById('chatInput'); const t = inp.value.trim(); if (!t) return; 
-      if (window.socket) {
-        const tempId = 'temp-' + Date.now();
-        const msg = { id: tempId, from: u.id, to: partnerId, text: t, time: new Date().toISOString(), read: false, temp: true };
-        AppStore.chatMessages.push(msg);
-        
-        const msgsDiv = document.getElementById('chatMsgs');
-        if (msgsDiv) {
-          const mHtml = `<div class="chat-msg sent" id="msg-${tempId}"><div>${t}</div><div class="chat-msg-time">${new Date(msg.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
-          msgsDiv.innerHTML += mHtml;
-          msgsDiv.scrollTop = msgsDiv.scrollHeight;
-        }
-
-        window.socket.emit('send_message', { from: u.id, to: partnerId, text: t, clientId: tempId });
+      const tempId = 'temp-' + Date.now();
+      const msg = { id: tempId, from: u.id, to: partnerId, text: t, time: new Date().toISOString(), read: false, temp: true };
+      AppStore.chatMessages.push(msg);
+      
+      const msgsDiv = document.getElementById('chatMsgs');
+      if (msgsDiv) {
+        const emptyMsg = msgsDiv.querySelector('div[style*="text-align:center"]');
+        if (emptyMsg) emptyMsg.remove();
+        const mHtml = `<div class="chat-msg sent" id="msg-${tempId}"><div>${t}</div><div class="chat-msg-time">${new Date(msg.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
+        msgsDiv.innerHTML += mHtml;
+        msgsDiv.scrollTop = msgsDiv.scrollHeight;
       }
       inp.value = '';
+
+      const token = localStorage.getItem('aimon-token');
+      if (token) {
+        try {
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ to: partnerId, text: t, clientId: tempId })
+          });
+          if (res.ok) {
+             const serverMsg = await res.json();
+             const tempIdx = AppStore.chatMessages.findIndex(m => m.id === tempId);
+             if (tempIdx !== -1) AppStore.chatMessages[tempIdx] = serverMsg;
+             const dom = document.getElementById(`msg-${tempId}`);
+             if (dom) dom.id = `msg-${serverMsg.id}`;
+          }
+        } catch(e) { console.error('Error sending message', e); }
+      }
     };
     document.getElementById('chatSendBtn').addEventListener('click', send);
     document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
@@ -1209,7 +1230,7 @@
           <div class="form-group"><label class="form-label">Catatan Penolakan</label>
           <textarea class="form-input" id="rejectNote" rows="3" placeholder="Masukkan alasan penolakan..."></textarea></div>
           <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-            <button class="btn btn-outline btn-sm" onclick="document.getElementById('rejectModalContainer')?.remove()">Batal</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('rejectModalContainer')?.remove()">Batal</button>
             <button class="btn btn-danger btn-sm" id="confirmRejectBtn">Tolak</button>
           </div>
         </div>
@@ -1314,83 +1335,43 @@
   Router.register('#/admin', renderAdmin);
   Router.register('#/account', renderAccount);
 
-  window.initSocket = function() {
-    if (window.socket) return;
-    window.socket = io(window.location.origin);
-    window.socket.on('receive_message', (msg) => {
-      // If we sent it or received it, push to local state
-      if (msg.to === AppStore.currentUser.id || msg.from === AppStore.currentUser.id) {
-        
-        // Handle temp replacing
-        if (msg.clientId) {
-          const tempIdx = AppStore.chatMessages.findIndex(m => m.id === msg.clientId);
-          if (tempIdx !== -1) {
-            AppStore.chatMessages[tempIdx] = msg; // Replace temp with real
-            const dom = document.getElementById(`msg-${msg.clientId}`);
-            if (dom) dom.id = `msg-${msg.id}`; // Update DOM id
-            return; // Already rendered!
-          }
-        }
-
-        // Prevent duplicate if we somehow got it twice
-        if (!AppStore.chatMessages.find(m => m.id === msg.id)) {
-          AppStore.chatMessages.push(msg);
-        }
-      }
-
-      const panel = document.getElementById('chatPanel');
-      if (panel && panel.classList.contains('open')) {
-        if (window._currentChatPartner) {
-          // If we are currently talking to this person and this message belongs to this conversation
-          if ((msg.from === window._currentChatPartner && msg.to === AppStore.currentUser.id) || 
-              (msg.to === window._currentChatPartner && msg.from === AppStore.currentUser.id)) {
-            
-            // Mark as read if we received it
-            if (msg.to === AppStore.currentUser.id) {
-               msg.read = true;
-               const t = localStorage.getItem('aimon-token');
-               if (t) fetch('/api/chat/read', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({ partnerId: msg.from }) }).catch(e => console.error(e));
-            }
-
-            // Just append DOM, don't re-render entirely to keep focus
-            const msgsDiv = document.getElementById('chatMsgs');
-            if (msgsDiv) {
-              // Remove empty state message if it exists
-              const emptyMsg = msgsDiv.querySelector('div[style*="text-align:center"]');
-              if (emptyMsg) emptyMsg.remove();
-              
-              const mHtml = `<div class="chat-msg ${msg.from === AppStore.currentUser.id ? 'sent' : 'received'}" id="msg-${msg.id}"><div>${msg.text}</div><div class="chat-msg-time">${new Date(msg.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div></div>`;
-              msgsDiv.innerHTML += mHtml;
-              msgsDiv.scrollTop = msgsDiv.scrollHeight;
-            }
-          }
-        } else {
-          // We are in the contact list view, just update the contact list order/text
-          renderChatContacts();
-        }
-      }
-      
-      // Update floating chat button badge if we are not actively reading it
-      const unreadCount = AppStore.chatMessages.filter(m => m.to === AppStore.currentUser.id && !m.read).length;
-      const btn = document.querySelector('.chat-btn');
-      if (btn) {
-        if (unreadCount > 0) {
-          if (!document.getElementById('chatBadge')) btn.innerHTML += `<span id="chatBadge" style="position:absolute;top:-5px;right:-5px;background:var(--color-danger);color:#fff;font-size:12px;font-weight:bold;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center">${unreadCount}</span>`;
-          else document.getElementById('chatBadge').innerText = unreadCount;
-        } else {
-          const badge = document.getElementById('chatBadge');
-          if (badge) badge.remove();
-        }
-      }
-    });
-    window.socket.on('approval_update', async () => {
+  window.startPolling = function() {
+    if (window._pollInterval) clearInterval(window._pollInterval);
+    window._pollInterval = setInterval(async () => {
       const t = localStorage.getItem('aimon-token');
-      if (t) {
+      if (!t) return;
+      
+      try {
+        const oldChatCount = AppStore.chatMessages.length;
         await AppStore.fetchInitialData(t);
+        const newChatCount = AppStore.chatMessages.length;
+        
+        if (newChatCount > oldChatCount || AppStore.chatMessages.some(m => !m.read && m.to === AppStore.currentUser.id)) {
+          const panel = document.getElementById('chatPanel');
+          if (panel && panel.classList.contains('open')) {
+            if (window._currentChatPartner) renderChatPanel(window._currentChatPartner);
+            else renderChatContacts();
+          }
+          
+          const unreadCount = AppStore.chatMessages.filter(m => m.to === AppStore.currentUser.id && !m.read).length;
+          const btn = document.querySelector('.chat-btn');
+          if (btn) {
+            if (unreadCount > 0) {
+              if (!document.getElementById('chatBadge')) btn.innerHTML += `<span id="chatBadge" style="position:absolute;top:-5px;right:-5px;background:var(--color-danger);color:#fff;font-size:12px;font-weight:bold;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center">${unreadCount}</span>`;
+              else document.getElementById('chatBadge').innerText = unreadCount;
+            } else {
+              const badge = document.getElementById('chatBadge');
+              if (badge) badge.remove();
+            }
+          }
+        }
+        
         if (window.location.hash === '#/approvals') renderApprovals();
-        if (window.location.hash === '#/dashboard') renderDashboard();
+        else if (window.location.hash === '#/dashboard') renderDashboard();
+      } catch(e) {
+        console.error('Polling error', e);
       }
-    });
+    }, 5000);
   };
 
   async function init() { 
@@ -1401,7 +1382,7 @@
       try { 
         AppStore.currentUser = JSON.parse(s); 
         await AppStore.fetchInitialData(t);
-        window.initSocket();
+        window.startPolling();
       } catch (e) { 
         localStorage.removeItem('aimon-user'); 
         localStorage.removeItem('aimon-token');
