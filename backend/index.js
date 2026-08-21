@@ -20,7 +20,15 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage })
 const server = createServer(app)
-const io = new Server(server, { cors: { origin: '*' } })
+let io;
+if (!process.env.VERCEL) {
+  io = new Server(server, {
+    cors: { origin: '*' }
+  })
+} else {
+  // Mock io for serverless environment
+  io = { emit: () => {}, to: () => ({ emit: () => {} }) };
+}
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
