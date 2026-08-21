@@ -407,6 +407,9 @@ io.on('connection', (socket) => {
 // START SERVER
 // ----------------------
 const PORT = process.env.PORT || 3001
-server.listen(PORT, () => {
-  console.log(`Backend API running on http://localhost:${PORT}`)
-})
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`Backend API running on http://localhost:${PORT}`)
+  })
+}
+module.exports = app;
