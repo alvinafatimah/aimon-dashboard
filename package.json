@@ -4,7 +4,8 @@
   "description": "AIMON Dashboard",
   "scripts": {
     "start": "cd backend && node index.js",
-    "install": "cd backend && npm install"
+    "install": "cd backend && npm install",
+    "vercel-build": "cd backend && npm install && npx prisma generate"
   },
   "engines": {
     "node": ">=18.0.0"
