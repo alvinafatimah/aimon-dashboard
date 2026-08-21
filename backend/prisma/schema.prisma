@@ -1,0 +1,175 @@
+datasource db {
+  provider = "postgresql"
+
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String            @id @default(uuid())
+  username         String            @unique
+  password_hash    String
+  name             String
+  role             String
+  seksi            String?
+  photo_url        String?
+  status           String            @default("pending") // pending, approved, rejected
+  is_online        Boolean           @default(false)
+  created_at       DateTime          @default(now())
+  
+  projects_pic     Project[]         @relation("ProjectPic")
+  activities_pic   Activity[]        @relation("ActivityPic")
+  approvals_subm   Approval[]        @relation("ApprovalSubmitter")
+  approvals_rev    Approval[]        @relation("ApprovalReviewer")
+  chat_sent        ChatMessage[]     @relation("ChatSender")
+  chat_received    ChatMessage[]     @relation("ChatReceiver")
+  notifications    Notification[]
+  activity_logs    ActivityLog[]
+
+  @@map("users")
+}
+
+model Project {
+  id               String            @id @default(uuid())
+  code             String
+  name             String
+  seksi            String
+  kategori         String            // OMTI, Non-OMTI
+  pic_id           String
+  pic              User              @relation("ProjectPic", fields: [pic_id], references: [id])
+  start_date       DateTime
+  end_date         DateTime
+  status           String            @default("approved") // draft, approved, completed
+  created_at       DateTime          @default(now())
+
+  curves           ProjectCurve[]
+  phases           Phase[]
+
+  @@map("projects")
+}
+
+model ProjectCurve {
+  id               String            @id @default(uuid())
+  project_id       String
+  project          Project           @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  curve_type       String            // plan, actual
+  period_type      String            // monthly, weekly
+  period_index     Int
+  value            Decimal?
+
+  @@map("project_curves")
+}
+
+model Phase {
+  id               String            @id @default(uuid())
+  project_id       String
+  project          Project           @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  code             String
+  name             String
+  bobot            Decimal
+  status           String            @default("open")
+  order_index      Int
+
+  activities       Activity[]
+
+  @@map("phases")
+}
+
+model Activity {
+  id               String            @id @default(uuid())
+  phase_id         String
+  phase            Phase             @relation(fields: [phase_id], references: [id], onDelete: Cascade)
+  pic_id           String?
+  pic              User?             @relation("ActivityPic", fields: [pic_id], references: [id])
+  code             String
+  name             String
+  target           Int               @default(100)
+  nilai_aktual     Int               @default(0)
+  status           String            @default("open")
+  start_date       DateTime
+  end_date         DateTime
+
+  documents        ActivityDocument[]
+  approvals        Approval[]
+
+  @@map("activities")
+}
+
+model ActivityDocument {
+  id               String            @id @default(uuid())
+  activity_id      String
+  activity         Activity          @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  file_name        String
+  file_url         String
+  uploaded_at      DateTime          @default(now())
+
+  @@map("activity_documents")
+}
+
+model Approval {
+  id               String            @id @default(uuid())
+  activity_id      String
+  activity         Activity          @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  submitted_by     String
+  submitter        User              @relation("ApprovalSubmitter", fields: [submitted_by], references: [id])
+  old_nilai        Int
+  new_nilai        Int
+  note             String?
+  status           String            @default("pending") // pending, approved, rejected
+  submitted_at     DateTime          @default(now())
+  reviewed_by      String?
+  reviewer         User?             @relation("ApprovalReviewer", fields: [reviewed_by], references: [id])
+  reviewed_at      DateTime?
+
+  documents        ApprovalDocument[]
+
+  @@map("approvals")
+}
+
+model ApprovalDocument {
+  id               String            @id @default(uuid())
+  approval_id      String
+  approval         Approval          @relation(fields: [approval_id], references: [id], onDelete: Cascade)
+  file_name        String
+  file_url         String
+
+  @@map("approval_documents")
+}
+
+model ChatMessage {
+  id               String            @id @default(uuid())
+  sender_id        String
+  sender           User              @relation("ChatSender", fields: [sender_id], references: [id])
+  receiver_id      String
+  receiver         User              @relation("ChatReceiver", fields: [receiver_id], references: [id])
+  text             String
+  is_read          Boolean           @default(false)
+  sent_at          DateTime          @default(now())
+
+  @@map("chat_messages")
+}
+
+model Notification {
+  id               String            @id @default(uuid())
+  user_id          String?           // Nullable for broadcast
+  user             User?             @relation(fields: [user_id], references: [id])
+  type             String            // info, warning, success, danger
+  message          String
+  is_read          Boolean           @default(false)
+  created_at       DateTime          @default(now())
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id               String            @id @default(uuid())
+  user_id          String
+  user             User              @relation(fields: [user_id], references: [id])
+  action_type      String
+  description      String
+  created_at       DateTime          @default(now())
+
+  @@map("activity_logs")
+}

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: aimon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-aimon_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - aimon_pgdata:/var/lib/postgresql/data
+
+volumes:
+  aimon_pgdata:

@@ -1,0 +1,224 @@
+/* ============================================
+   AIMON Design System - CSS Custom Properties
+   ============================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* === Color Tokens - Light Mode (Default) === */
+  --color-primary: #1B2559;
+  --color-primary-light: #2D3A7C;
+  --color-primary-lighter: #4A5FBF;
+  --color-primary-subtle: #E8EAF6;
+
+  --color-accent: #D946C7;
+  --color-accent-light: #E97DD8;
+  --color-accent-lighter: #F0B8E8;
+  --color-accent-subtle: #FCE4F8;
+
+  --color-bg-page: #FFFFFF;
+  --color-bg-card: #FFFFFF;
+  --color-bg-sidebar: #F7F8FC;
+  --color-bg-sidebar-hover: #EDEEF5;
+  --color-bg-sidebar-active: #E8EAF6;
+  --color-bg-header: #FFFFFF;
+  --color-bg-input: #F3F4F8;
+  --color-bg-right-panel: #FAFBFD;
+  --color-bg-table-row-alt: #F9FAFC;
+  --color-bg-table-row-hover: #F0F1F7;
+  --color-bg-modal-overlay: rgba(27, 37, 89, 0.5);
+  --color-bg-filter-bar: #F5F6FA;
+  --color-bg-badge: #F0F1F5;
+
+  --color-border: #E5E7EB;
+  --color-border-light: #F0F1F5;
+  --color-border-focus: #4A5FBF;
+
+  --color-text-primary: #1B2559;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-inverse: #FFFFFF;
+  --color-text-link: #3B82F6;
+
+  --color-success: #10B981;
+  --color-success-bg: #ECFDF5;
+  --color-success-border: #A7F3D0;
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FFFBEB;
+  --color-warning-border: #FDE68A;
+  --color-danger: #EF4444;
+  --color-danger-bg: #FEF2F2;
+  --color-danger-border: #FECACA;
+  --color-info: #3B82F6;
+  --color-info-bg: #EFF6FF;
+  --color-info-border: #BFDBFE;
+
+  /* === Shadows === */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+  /* === Typography === */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  --fs-xs: 0.65rem;     /* ~10.4px */
+  --fs-sm: 0.725rem;    /* ~11.6px */
+  --fs-base: 0.8125rem; /* 13px */
+  --fs-md: 0.9375rem;   /* 15px */
+  --fs-lg: 1.0625rem;   /* 17px */
+  --fs-xl: 1.25rem;     /* 20px */
+  --fs-2xl: 1.5rem;     /* 24px */
+  --fs-3xl: 1.75rem;    /* 28px */
+  --fs-4xl: 2.25rem;    /* 36px */
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --lh-tight: 1.25;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.75;
+
+  /* === Spacing === */
+  --space-1: 2px;
+  --space-2: 6px;
+  --space-3: 10px;
+  --space-4: 14px;
+  --space-5: 18px;
+  --space-6: 22px;
+  --space-8: 28px;
+  --space-10: 36px;
+  --space-12: 44px;
+  --space-16: 56px;
+
+  /* === Border Radius === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* === Layout === */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 56px;
+  --right-panel-width: 280px;
+
+  /* === Transition === */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-theme: 350ms ease;
+
+  /* === Z-Index === */
+  --z-sidebar: 100;
+  --z-header: 200;
+  --z-dropdown: 300;
+  --z-modal-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 9999;
+
+  /* === Status Colors === */
+  --color-status-done: #16A34A;
+  --color-status-done-bg: #DCFCE7;
+  --color-status-progress: #F59E0B;
+  --color-status-progress-bg: #FEF3C7;
+  --color-status-open: #94A3B8;
+  --color-status-open-bg: #F1F5F9;
+  --color-status-late: #DC2626;
+  --color-status-late-bg: #FEE2E2;
+
+  /* === Chart Colors === */
+  --chart-plan: #1E1B4B;
+  --chart-actual: #C026D3;
+  --chart-plan-fill: rgba(30, 27, 75, 0.08);
+  --chart-actual-fill: rgba(192, 38, 211, 0.12);
+  --chart-grid: rgba(0, 0, 0, 0.06);
+  --chart-text: #6B7280;
+}
+
+/* === Dark Mode === */
+[data-theme="dark"] {
+  --color-primary: #6B8AFF;
+  --color-primary-light: #8BA4FF;
+  --color-primary-lighter: #A3B8FF;
+  --color-primary-subtle: #1E2240;
+
+  --color-accent: #E97DD8;
+  --color-accent-light: #F0A0E5;
+  --color-accent-lighter: #F5BEF0;
+  --color-accent-subtle: #2D1830;
+
+  --color-bg-page: #0D0F18;
+  --color-bg-card: #161929;
+  --color-bg-sidebar: #111322;
+  --color-bg-sidebar-hover: #1A1D30;
+  --color-bg-sidebar-active: #1E2240;
+  --color-bg-header: #111322;
+  --color-bg-input: #1A1D30;
+  --color-bg-right-panel: #111322;
+  --color-bg-table-row-alt: #1A1D2C;
+  --color-bg-table-row-hover: #1E2138;
+  --color-bg-modal-overlay: rgba(0, 0, 0, 0.7);
+  --color-bg-filter-bar: #13152A;
+  --color-bg-badge: #1E2240;
+
+  --color-border: #252840;
+  --color-border-light: #1E2138;
+  --color-border-focus: #6B8AFF;
+
+  --color-text-primary: #E8ECF4;
+  --color-text-secondary: #8B92A5;
+  --color-text-tertiary: #5A6178;
+  --color-text-inverse: #0D0F18;
+  --color-text-link: #60A5FA;
+
+  --color-success: #34D399;
+  --color-success-bg: #0D2818;
+  --color-success-border: #065F46;
+  --color-warning: #FBBF24;
+  --color-warning-bg: #2D2006;
+  --color-warning-border: #92400E;
+  --color-danger: #F87171;
+  --color-danger-bg: #2D0A0A;
+  --color-danger-border: #991B1B;
+  --color-info: #60A5FA;
+  --color-info-bg: #0C1929;
+  --color-info-border: #1E3A5F;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 8px 25px rgba(0, 0, 0, 0.35);
+
+  /* === Status Colors === */
+  --color-status-done: #34D399;
+  --color-status-done-bg: #064E3B;
+  --color-status-progress: #FBBF24;
+  --color-status-progress-bg: #78350F;
+  --color-status-open: #94A3B8;
+  --color-status-open-bg: #1E293B;
+  --color-status-late: #F87171;
+  --color-status-late-bg: #7F1D1D;
+
+  /* === Chart Colors === */
+  --chart-plan: #6B8AFF;
+  --chart-actual: #E97DD8;
+  --chart-plan-fill: rgba(107, 138, 255, 0.12);
+  --chart-actual-fill: rgba(233, 125, 216, 0.15);
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-text: #8B92A5;
+}
