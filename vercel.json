@@ -1,12 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "backend/index.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "css/**", "use": "@vercel/static" },
-    { "src": "js/**", "use": "@vercel/static" },
-    { "src": "images/**", "use": "@vercel/static" }
-  ],
   "functions": {
     "backend/index.js": {
       "includeFiles": "backend/prisma/**"
