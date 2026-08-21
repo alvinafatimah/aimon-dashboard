@@ -6,7 +6,7 @@ const { PrismaPg } = require('@prisma/adapter-pg')
 const { Pool } = require('pg')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
