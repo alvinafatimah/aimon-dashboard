@@ -327,7 +327,6 @@ app.post('/api/approvals', authenticateToken, async (req, res) => {
         }
       }
     })
-    io.emit('approval_update', { type: 'new', approval })
     res.status(201).json(approval)
   } catch (error) {
     res.status(500).json({ error: error.message })

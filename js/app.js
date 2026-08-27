@@ -966,9 +966,11 @@
         if (res.ok) {
           Toast.show('Update diajukan! Menunggu approval.', 'success'); closeModal();
         } else {
-          Toast.show('Gagal mengajukan update.', 'error');
+          const errData = await res.json().catch(() => ({}));
+          console.error('Approval error:', res.status, errData);
+          Toast.show(errData.error || 'Gagal mengajukan update.', 'error');
         }
-      } catch (e) { console.error(e); Toast.show('Error jaringan', 'error'); }
+      } catch (e) { console.error(e); Toast.show('Error jaringan: ' + e.message, 'error'); }
     });
   }
 
