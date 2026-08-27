@@ -977,10 +977,27 @@
   // ============================================
   // APPROVALS / REPORTS / ADMIN / ACCOUNT
   // ============================================
-  function renderApprovals() {
+  async function renderApprovals() {
     if (!document.getElementById('mainContent')) renderAppShell();
     document.getElementById('navApprovals') && setActiveNav(document.getElementById('navApprovals'));
     updateBreadcrumb([{ text: 'Dashboard', link: '#/dashboard' }, { text: 'Approval Queue' }]);
+    
+    // Re-fetch approvals from server to get latest data
+    try {
+      const token = localStorage.getItem('aimon-token');
+      const approvalsRes = await fetch('/api/approvals', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (approvalsRes.ok) {
+        const apvs = await approvalsRes.json();
+        AppStore.approvals = apvs.map(a => ({
+          id: a.id, type: 'update', projectId: a.activity?.phase?.project?.id,
+          activityId: a.activity_id, submittedBy: a.submitted_by, submitterName: a.submitter?.name,
+          activityName: a.activity?.name, phaseName: a.activity?.phase?.name,
+          oldValue: a.old_nilai, newValue: a.new_nilai, note: a.note, docs: a.documents || [],
+          submittedAt: a.submitted_at, status: a.status, rejectNote: a.note
+        }));
+      }
+    } catch (e) { console.error('Failed to refresh approvals:', e); }
+
     const pending = AppStore.approvals.filter(a => a.status === 'pending');
     document.getElementById('mainContent').innerHTML = `<div class="page animate-fade-in-up">
       <div class="page-header"><h1 class="page-title" style="font-size:var(--fs-lg)">Approval Queue</h1><p class="page-subtitle" style="font-size:var(--fs-xs)">Review dan setujui draft update progress dari Researcher</p></div>
